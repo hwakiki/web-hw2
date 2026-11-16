@@ -1,4 +1,3 @@
-// tmdb.js : TMDB now_playing 응답
 
 const TMDB = {
   "dates": {
