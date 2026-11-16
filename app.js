@@ -61,17 +61,19 @@ console.log(`A5 관객 100만 이상: ${bigA.trim()}`);
 
 // ===== Part B =====
 
-// getAverageRating : movies 배열 ⇒ 평균 평점(숫자)
-function getAverageRating(movieList) {
-  let sumB = 0;
-  for (let i = 0; i < movieList.length; i++) {
-    sumB += movieList[i].rating;
+function averageBy(list, key) {
+  let sum = 0;
+  for (let i = 0; i < list.length; i++) {
+    sum += list[i][key];
   }
-  return sumB / movieList.length;
+  return sum / list.length;
 }
 
-// getBestMovie : movies 배열 ⇒ 최고 평점 영화 객체
-function getBestMovie(movieList) {
+function average(movieList) {
+  return averageBy(movieList, "rating");
+}
+
+function best(movieList) {
   let bestIdx = 0;
   for (let i = 0; i < movieList.length; i++) {
     if (movieList[i].rating > movieList[bestIdx].rating) {
@@ -81,18 +83,16 @@ function getBestMovie(movieList) {
   return movieList[bestIdx];
 }
 
-// getHighRatingCount : movies 배열, 기준 평점(number) ⇒ 조건 만족 영화 수(number)
-function getHighRatingCount(movieList, criteria) {
-  let countB = 0;
+function filterByRating(movieList, criteria) {
+  let filtered = [];
   for (let i = 0; i < movieList.length; i++) {
     if (movieList[i].rating >= criteria) {
-      countB++;
+      filtered.push(movieList[i]);
     }
   }
-  return countB;
+  return filtered;
 }
 
-// getDecadeCounts : movies 배열 ⇒ 연도대별 영화 수 객체
 function getDecadeCounts(movieList) {
   let counts = { "2020년대": 0, "2010년대": 0, "2000년대": 0, "그 이전": 0 };
   for (let i = 0; i < movieList.length; i++) {
@@ -116,7 +116,6 @@ function getDecadeCounts(movieList) {
   return counts;
 }
 
-// getMillionAudienceTitles : movies 배열 ⇒ 관객 100만 이상 영화 제목 배열
 function getMillionAudienceTitles(movieList) {
   let resultTitles = [];
   for (let i = 0; i < movieList.length; i++) {
@@ -127,7 +126,6 @@ function getMillionAudienceTitles(movieList) {
   return resultTitles;
 }
 
-// getMoviesByType : movies 배열, 타입 문자열("mine" 또는 "boxoffice") ⇒ 해당 타입 영화 객체 배열
 function getMoviesByType(movieList, typeStr) {
   let typeList = [];
   for (let i = 0; i < movieList.length; i++) {
@@ -138,7 +136,6 @@ function getMoviesByType(movieList, typeStr) {
   return typeList;
 }
 
-// getTotalAudience : movies 배열 ⇒ 총 누적 관객 수 합계(number)
 function getTotalAudience(movieList) {
   let totalAud = 0;
   for (let i = 0; i < movieList.length; i++) {
@@ -147,7 +144,6 @@ function getTotalAudience(movieList) {
   return totalAud;
 }
 
-// sortBy : 배열, 기준 키, 내림차순 여부 ⇒ 정렬된 새 배열
 function sortBy(list, key, desc = false) {
   const sign = desc ? -1 : 1;
   return [...list].sort((a, b) => {
@@ -161,8 +157,7 @@ function sortBy(list, key, desc = false) {
   });
 }
 
-// search : 배열, 검색어 ⇒ 검색된 영화 객체 배열
-function searchMovies(list, keyword) {
+function search(list, keyword) {
   const searchTerm = keyword.trim().toLowerCase();
   let searchResult = [];
   for (let i = 0; i < list.length; i++) {
@@ -174,26 +169,29 @@ function searchMovies(list, keyword) {
 }
 
 
-// ===== Part B 출력 (웹페이지 #out 요소에 3줄 표시) =====
+// ===== Part C =====
 
-function getYearsSince(year) {
-  const currentYear = new Date().getFullYear();
-  return currentYear - year;
+function getList(data) {
+    return data.results;
 }
 
-function formatNumber(num) {
-  return num.toLocaleString();
+function averageBy(list, key) {
+    if (!list || list.length === 0) return 0;
+    let sum = 0;
+    for (let i = 0; i < list.length; i++) {
+        sum += list[i][key];
+    }
+    return sum / list.length;
 }
 
-const bestMovie = getBestMovie(movies);
-const yearsSinceReleased = getYearsSince(bestMovie.year);
-const topAudienceMovie = sortBy(movies, "audience", true)[0];
-const avgRating = getAverageRating(movies);
+function average(list) {
+    return averageBy(list, "rating");
+}
 
-const line1 = `전체 10편, 평균 평점 ${avgRating.toFixed(1)}점`;
-const line2 = `최고 평점 ${bestMovie.title} (${bestMovie.rating}점, 개봉한 지 ${yearsSinceReleased}년)`;
-const line3 = `관객 1위 ${topAudienceMovie.title} (누적 ${formatNumber(topAudienceMovie.audience)}명)`;
+console.log(`C1: page: ${TMDB.page}, total_pages: ${TMDB.total_pages}, total_results: ${TMDB.total_results}, 이번 응답 영화 수: ${getList(TMDB).length}`);
+console.log(`C2: 상영작 평균 평점: ${averageBy(getList(TMDB), "vote_average").toFixed(1)}`);
 
-const outputText = `${line1}\n${line2}\n${line3}`;
+console.table(sortBy(getList(TMDB), "vote_average", true).slice(0, 5), ["title", "release_date", "vote_average"]);
 
-document.getElementById("out").textContent = outputText;
+const searchKeyword = getList(TMDB)[0].title.substring(0, 2);
+console.log(`C4: '${searchKeyword}' 검색 개수: ${search(getList(TMDB), searchKeyword).length}`);
