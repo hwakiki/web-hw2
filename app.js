@@ -1,5 +1,4 @@
 // ===== Part A =====
-
 // A1: 평균 평점 계산
 let sumA = 0;
 for (let i = 0; i < ratings.length; i++) {
